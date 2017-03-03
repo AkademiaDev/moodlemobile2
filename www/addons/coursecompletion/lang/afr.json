@@ -1,0 +1,21 @@
+{
+    "complete": "Voltooi",
+    "completecourse": "Volledige kursus",
+    "completed": "Afgehandel",
+    "completiondate": "Voltooiingsdatum",
+    "couldnotloadreport": "Kon nie die voltooiing verslag laai nie, probeer asb. weer later.",
+    "criteria": "Kriteria",
+    "criteriagroup": "Kriteria groep",
+    "criteriarequiredall": "Alle kriteria hieronder word vereis",
+    "criteriarequiredany": "Enige kriteria hieronder word vereis",
+    "coursecompletion": "Kursus voltooiing",
+    "inprogress": "Aan die gang",
+    "manualselfcompletion": "Manual self completion",
+    "notyetstarted": "Nog nie begin nie",
+    "pending": "Hangende",
+    "requirement": "Vereiste",
+    "required": "Word vereis",
+    "requiredcriteria": "Vereiste kriteria",
+    "status": "Status",
+    "viewcoursereport": "Besigtig kursus verslag"
+}
