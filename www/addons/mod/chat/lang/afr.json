@@ -1,0 +1,19 @@
+{
+    "beep": "Beep",
+    "currentusers": "Huidige gebruikers",
+    "enterchat": "Klik hier om die gesprek nou te betree",
+    "entermessage": "Tik jou boodskap",
+    "errorwhileconnecting": "'n Fout is begaan tydens die koppeling aan die gesprek.",
+    "errorwhilegettingchatdata": "'n Fout is begaan tydens die aflaai van gesprek data.",
+    "errorwhilegettingchatusers": "'n Fout is begaan tydens die aflaai van gesprek gebruikers.",
+    "errorwhileretrievingmessages": "'n Fout is begaan tydens die aflaai van boodskappe vanaf die bediener.",
+    "errorwhilesendingmessage": "'n Fout is begaan met die stuur van die boodskap.",
+    "messagebeepsyou": "{{$a}} has just beeped you!",
+    "messageenter": "{{$a}} het sopas het hierdie gesprek betree",
+    "messageexit": "{{$a}} het hierdie gesprek verlaat",
+    "mustbeonlinetosendmessages": "Jy moet aanlyn wees om boodskappe te stuur",
+    "nomessages": "Nog geen boodskappe nie",
+    "send": "Stuur",
+    "sessionstart": "Die volgende gesprek sessie sal begin in {{$a}}",
+    "talk": "Praat"
+}
