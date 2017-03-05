@@ -1,0 +1,22 @@
+{
+	"answer": "Antwoord",
+	"answersaved": "Antwoord gestoor",
+	"certainty": "Sekerheid",
+	"complete": "Volledig",
+	"correct": "korrek",
+	"errorattachmentsnotsupported": "Die App ondersteun nog nie die aanheg van lêers aan antwoorde nie.",
+	"errorinlinefilesnotsupported": "Die program ondersteun nog nie geïntegreerde redigering van lêers nie.",
+	"errorquestionnotsupported": "Hierdie tipe vraag word nie ondersteun deur die app nie: {{$a}}.",
+	"feedback": "Terugvoer",
+	"howtodraganddrop": "Tik om te kies en tik dan om te laat val.",
+	"incorrect": "Verkeerd",
+	"information": "Inligting",
+	"invalidanswer": "Onvolledige antwoord",
+	"notanswered": "Nie geantwoord nie",
+	"notyetanswered": "Nog nie geantwoord nie",
+	"partiallycorrect": "Gedeeltelik korrek",
+	"questionmessage": "Vraag {{$a}}: {{$b}}",
+	"questionno": "Vraag {{$a}}",
+	"requiresgrading": "Moet gemerk word",
+	"unknown": "Kan nie status bepaal nie"
+}
