@@ -1,0 +1,21 @@
+{
+    "cannoteditpage": "Jy kan nie hierdie bladsy wysig nie.",
+    "createpage": "Skep bladsy",
+    "editingpage": "Redigering van hierdie bladsy '{{$a}}'",
+    "errorloadingpage": "'n Fout is begaan tydens die laai van bladsy.",
+    "errornowikiavailable": "Hierdie wiki het nog nie enige inhoud nie.",
+    "gowikihome": "Go Wiki home",
+    "map": "Kaart",
+    "notingroup": "Nie in groep nie",
+    "newpagehdr": "Nuwe bladsy",
+    "newpagetitle": "Nuwe bladsy titel",
+    "nocontent": "Daar is geen inhoud vir hierdie bladsy nie",
+    "page": "Bladsy",
+    "pageexists": "Hierdie bladsy bestaan reeds.",
+    "pagename": "Bladsy naam",
+    "subwiki": "Subwiki",
+    "titleshouldnotbeempty": "Titel moet nie lees wees nie",
+    "viewpage": "Besigtig bladsy",
+    "wikipage": "Wiki bladsy",
+    "wrongversionlock": "Nog 'n gebruiker het hierdie bladsy geredigeer terwyl jy geredigeer het en jou inhoud is nie meer geldig nie."
+}
