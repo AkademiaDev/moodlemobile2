@@ -1,0 +1,20 @@
+{
+    "activitynotyetviewableinapp": "Ons is besig om te werk aan die ondersteuning van die {{$a}} aktiwiteit.",
+    "activitynotyetviewableremoteaddon": "Daar is 'n prop geïnstalleer wat nog nie ondersteun word nie.",
+    "activitynotyetviewablesiteupgradeneeded": "Die spens moet opgegradeer word.",
+    "allsections": "Alle afdelings",
+    "askadmintosupport": "Kontak asb. Akademia Tegnies rakende hierdie aktiwiteit.",
+    "confirmdeletemodulefiles": "Is jy seker jy wil hierdie module lêers verwyder?",
+    "confirmdownload": "Jy staan op die punt om {{size}} af te laai. Is jy seker jy wil voortgaan?",
+    "confirmdownloadunknownsize": "Ons was nie in staat om die grootte van die aflaai te bereken nie. Is jy seker jy wil dit aflaai?",
+    "confirmpartialdownloadsize": "Jy staan op die punt om <strong>ten minste</strong> {{size}} af te laai. Is jy seker jy wil voortgaan?",
+    "contents": "Inhoud",
+    "couldnotloadsections": "Kon nie die afdelings laai nie, probeer asseblief later weer.",
+    "couldnotloadsectioncontent": "Kon nie die afdeling inhoud laai nie, probeer asseblief later weer.",
+    "errordownloadingsection": "'n Fout is begaan met die aflaai van die afdeling.",
+    "errorgetmodule": "'n Fout is begaan met die aflaai van die module data.",
+    "nocontentavailable": "Geen inhoud beskikbaar op die oomblik nie.",
+    "overriddennotice": "Jou finale punt van hierdie aktiwiteit is met die hand aangepas.",
+    "useactivityonbrowser": "Jy kan dit steeds gebruik met jou toestel se webleser.",
+    "showall": "Wys alle"
+}
