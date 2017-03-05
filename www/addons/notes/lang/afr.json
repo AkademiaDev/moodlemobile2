@@ -1,0 +1,13 @@
+{
+    "addnewnote": "Skep 'n nuwe nota",
+    "coursenotes": "Kursusnotas",
+    "eventnotecreated": "Nota geskep",
+    "nonotes": "Daar is geen notas van hierdie tipe nie",
+    "note": "Nota",
+    "notes": "Notas",
+    "personalnotes": "Persoonlike notas",
+    "publishstate": "Konteks",
+    "sitenotes": "Webwerf notas",
+    "userwithid": "Die gebruiker met ID {{id}}",
+    "warningnotenotsent": "Kon nie nota(s) byvoeg tot kursus {{course}} nie. {{error}}"
+}
