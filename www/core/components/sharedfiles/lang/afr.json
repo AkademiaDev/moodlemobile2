@@ -1,0 +1,11 @@
+{
+    "chooseactionrepeatedfile": "Daar is reeds 'n lêer met hierdie naam. Wil jy die bestaande lêer vervang of dit hernoem na \"{{$a}}\"?",
+    "chooseaccountstorefile": "Kies 'n rekening om die lêer in te stoor.",
+    "errorreceivefilenosites": "Daar is geen webwerwe wat gestoor is nie. Voeg asseblief 'n webwerf by voordat jy 'n lêer deel met die App.",
+    "nosharedfiles": "Daar is geen gedeelde lêers gestoor in hierdie webtuiste nie.",
+    "nosharedfilestoupload": "Jy het geen lêers om hier op te laai nie. As jy wil 'n lêer wil op laai van 'n ander App af, spoor die lêer op en klik op die 'Maak oop in' knoppie.",
+    "rename": "Herbenoem",
+    "replace": "Vervang",
+    "sharedfiles": "Gedeelde lêers",
+    "successstorefile": "Lêer suksesvol gestoor. Nou kan jy hierdie lêer kies om dit te laai na jou persoonlike lêers of heg dit aan in sommige aktiwiteite."
+}
