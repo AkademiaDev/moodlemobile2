@@ -2,7 +2,7 @@
 <widget id="ac.za.spens.akademia" version="3.2.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
   <name>Akademia Spens App</name>
   <description>Akademia Spens App</description>
-  <author href="http://spens.akademia.ac.za" email="tegnies@akademia.ac.za">Akademia Tegnies</author>
+  <author href="https://spens.akademia.ac.za" email="tegnies@akademia.ac.za">Akademia Tegnies</author>
   <content src="index.html"/>
   <access origin="*"/>
   <allow-navigation href="cdvfile:*"/>
