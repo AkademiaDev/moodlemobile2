@@ -5,8 +5,8 @@
                 <div class="input-label" id="mm-settings-languagelabel">
                     {{ 'mm.settings.language' | translate }}
                 </div>
-                <select ng-model="selectedLanguage" ng-options="code as name for (code, name) in langs" ng-change="languageChanged(selectedLanguage)" aria-labelledby="mm-settings-languagelabel" mm-ios-select-fix>
-                </select>
+                <ion-select ng-model="selectedLanguage" ng-options="code as name for (code, name) in langs" ng-change="languageChanged(selectedLanguage)" aria-labelledby="mm-settings-languagelabel" mm-ios-select-fix>
+                </ion-select>
             </li>
             <ion-toggle ng-if="rteSupported" ng-model="richTextEditor" ng-change="richTextEditorChanged(richTextEditor)">
                 <p class="item-heading">{{ 'mm.settings.enablerichtexteditor' | translate }}</p>
