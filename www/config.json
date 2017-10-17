@@ -10,7 +10,7 @@
     "wsextservice" : "local_mobile",
     "gcmpn": "694767596569",
     "customurlscheme": "moodlemobile",
-    "siteurl": "https://spens.akademia.ac.za",
+    "siteurl": "http://2018.akademia.ac.za",
     "skipssoconfirmation": "false",
     "forcedefaultlanguage": "false"
 }
