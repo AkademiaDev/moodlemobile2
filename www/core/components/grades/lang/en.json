@@ -5,11 +5,11 @@
     "feedback": "Feedback",
     "grade": "Grade",
     "grades": "Grades",
-    "itemname": "Grade item",
+    "itemname": "Item name",
     "lettergrade": "Letter grade",
     "nooutcome": "No outcome",
     "percentage": "Percentage",
-    "rank": "Rank",
     "range": "Range",
+    "rank": "Rank",
     "weight": "Weight"
 }

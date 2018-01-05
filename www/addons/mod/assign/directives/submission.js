@@ -28,7 +28,7 @@ angular.module('mm.addons.mod_assign')
         mmaModAssignSubmissionInvalidatedEvent, $mmGroups, $state, $mmaModAssignHelper, mmaModAssignSubmissionStatusReopened,
         $mmEvents, mmaModAssignSubmittedForGradingEvent, $mmFileUploaderHelper, $mmApp, $mmText, mmaModAssignComponent, $mmUtil,
         $mmaModAssignOffline, mmaModAssignEventManualSynced, $mmCourse, $mmGrades, mmaModAssignAttemptReopenMethodManual,
-        $mmLang, $mmSyncBlock, mmaModAssignEventSubmitGrade, $ionicPlatform, mmaModAssignGradedEvent) {
+        $mmLang, $mmSyncBlock, mmaModAssignEventSubmitGrade, $ionicPlatform, mmaModAssignGradedEvent, $mmGradesHelper) {
 
     var originalGrades =  {};
 
@@ -142,6 +142,11 @@ angular.module('mm.addons.mod_assign')
                     return $q.when();
                 }
 
+                if (!scope.$$destroyed) {
+                    // Block the assignment.
+                    $mmSyncBlock.blockOperation(mmaModAssignComponent, assign.id);
+                }
+
                 scope.gradeInfo = gradeInfo;
                 if (gradeInfo.advancedgrading && gradeInfo.advancedgrading[0] &&
                         typeof gradeInfo.advancedgrading[0].method != 'undefined') {
@@ -155,7 +160,7 @@ angular.module('mm.addons.mod_assign')
                 scope.canSaveGrades = scope.grade.method == 'simple';
 
                 if (scope.gradeInfo.scale) {
-                    scope.grade.scale = formatScaleOptions(scope.gradeInfo.scale, $translate.instant('mm.core.nograde'));
+                    scope.grade.scale = $mmUtil.makeMenuFromList(scope.gradeInfo.scale, $translate.instant('mm.core.nograde'));
                 } else {
                     // Get current language to format grade input field.
                     $mmLang.getCurrentLanguage().then(function(lang) {
@@ -167,7 +172,7 @@ angular.module('mm.addons.mod_assign')
                     angular.forEach(scope.gradeInfo.outcomes, function(outcome) {
                         if (outcome.scale) {
                             outcome.options =
-                                formatScaleOptions(outcome.scale, $translate.instant('mm.grades.nooutcome'));
+                                $mmUtil.makeMenuFromList(outcome.scale, $translate.instant('mm.grades.nooutcome'));
                         }
                         outcome.selectedId = 0;
                         originalGrades.outcomes[outcome.id] = outcome.selectedId;
@@ -180,7 +185,7 @@ angular.module('mm.addons.mod_assign')
                     angular.forEach(grades, function(grade) {
                         if (!grade.outcomeid && !grade.scaleid) {
                             if (scope.grade.scale) {
-                                scope.grade.grade = getSelectedScaleId(scope.grade.scale, grade.gradeformatted);
+                                scope.grade.grade = $mmGradesHelper.getGradeValueFromLabel(scope.grade.scale, grade.gradeformatted);
                             } else {
                                 var parsedGrade = parseFloat(grade.gradeformatted);
                                 scope.grade.grade = parsedGrade || parsedGrade == 0 ? parsedGrade : null;
@@ -194,7 +199,7 @@ angular.module('mm.addons.mod_assign')
                                     outcome.selected = grade.gradeformatted;
                                     outcome.modified = grade.gradedategraded;
                                     if (outcome.options) {
-                                        outcome.selectedId = getSelectedScaleId(outcome.options, outcome.selected);
+                                        outcome.selectedId = $mmGradesHelper.getGradeValueFromLabel(outcome.options, outcome.selected);
                                         originalGrades.outcomes[outcome.id] = outcome.selectedId;
                                         outcome.itemNumber = grade.itemnumber;
                                     }
@@ -222,12 +227,12 @@ angular.module('mm.addons.mod_assign')
                     originalGrades.applyToAll = true;
                 }
                 if (assign.markingworkflow && scope.grade.gradingStatus) {
-                    scope.workflowStatusTranslationId =  getSubmissionGradingStatusTranslationId(scope.grade.gradingStatus);
+                    scope.workflowStatusTranslationId =
+                        $mmaModAssign.getSubmissionGradingStatusTranslationId(scope.grade.gradingStatus);
                 }
 
-                if (!scope.feedback) {
+                if (!scope.feedback || !scope.feedback.plugins) {
                     scope.feedback = {};
-
                     // Feedback plugins not present, we have to use assign configs to detect the plugins used.
                     scope.feedback.plugins = $mmaModAssignHelper.getPluginsEnabled(assign, 'assignfeedback');
                 }
@@ -245,10 +250,13 @@ angular.module('mm.addons.mod_assign')
                                 scope.grade.grade = data.grade;
                                 scope.gradingStatusTranslationId = 'mma.mod_assign.gradenotsynced';
                                 scope.gradingClass = "";
+                                originalGrades.grade = scope.grade.grade;
                             }
 
                             scope.grade.applyToAll = data.applytoall;
                             scope.grade.addAttempt = data.addattempt;
+                            originalGrades.applyToAll = scope.grade.applyToAll;
+                            originalGrades.addAttempt = scope.grade.addAttempt;
 
                             if (data.outcomes && Object.keys(data.outcomes).length) {
                                 angular.forEach(scope.gradeInfo.outcomes, function(outcome) {
@@ -256,6 +264,7 @@ angular.module('mm.addons.mod_assign')
                                         // If outcome has been modified from gradebook, do not use offline.
                                         if (outcome.modified < data.timemodified) {
                                             outcome.selectedId = data.outcomes[outcome.itemNumber];
+                                            originalGrades.outcomes[outcome.id] = outcome.selectedId;
                                         }
                                     }
                                 });
@@ -271,23 +280,6 @@ angular.module('mm.addons.mod_assign')
         });
     }
 
-    // Convenience function to format scale selectors options.
-    function formatScaleOptions(options, defaultOption) {
-        options = options.split(",");
-        options = options.map(function (value) {return value.trim();});
-        options.unshift(defaultOption);
-        return options;
-    }
-
-    // Convenience function to get scale selected option.
-    function getSelectedScaleId(options, selected) {
-        var index = options.indexOf(selected) || 0;
-        if (index < 0) {
-            return 0;
-        }
-        return index;
-    }
-
     // Directive controller.
     function controller() {
         var self = this;
@@ -295,6 +287,8 @@ angular.module('mm.addons.mod_assign')
         self.load = function(scope, moduleId, courseId, submitId, blindId) {
             var isBlind = !!blindId,
                 assign;
+
+            scope.previousAttempt = false;
 
             if (!submitId) {
                 submitId = $mmSite.getUserId();
@@ -308,11 +302,6 @@ angular.module('mm.addons.mod_assign')
                     promises = [];
 
                 scope.assign = assign;
-
-                if (!scope.$$destroyed) {
-                    // Block the assignment.
-                    $mmSyncBlock.blockOperation(mmaModAssignComponent, assign.id);
-                }
 
                 if (assign.allowsubmissionsfromdate && assign.allowsubmissionsfromdate >= time) {
                     scope.fromDate = moment(assign.allowsubmissionsfromdate * 1000)
@@ -351,7 +340,13 @@ angular.module('mm.addons.mod_assign')
                     scope.submissionStatusAvailable = true;
 
                     scope.lastAttempt = response.lastattempt;
-                    scope.previousAttempts = response.previousattempts;
+                    if (response.previousattempts && response.previousattempts.length > 0) {
+                        var previousAttempts = response.previousattempts.sort(function(a, b) {
+                            return a.attemptnumber - b.attemptnumber;
+                        });
+                        scope.previousAttempt = previousAttempts[previousAttempts.length - 1];
+                    }
+
                     scope.membersToSubmit = [];
                     if (response.lastattempt) {
                         scope.canSubmit = !scope.isSubmittedForGrading && !scope.submittedOffline &&
@@ -426,7 +421,13 @@ angular.module('mm.addons.mod_assign')
                         if (scope.userSubmission) {
                             if (!assign.teamsubmission || !response.lastattempt.submissiongroup ||
                                     !assign.preventsubmissionnotingroup) {
-                                scope.submissionPlugins = scope.userSubmission.plugins;
+                                if (scope.previousAttempt && scope.previousAttempt.submission.plugins &&
+                                        scope.userSubmission.status == mmaModAssignSubmissionStatusReopened) {
+                                    // Get latest attempt if avalaible.
+                                    scope.submissionPlugins = scope.previousAttempt.submission.plugins;
+                                } else {
+                                    scope.submissionPlugins = scope.userSubmission.plugins;
+                                }
                             }
                         }
                     }
@@ -466,7 +467,7 @@ angular.module('mm.addons.mod_assign')
                     promises.push(feedbackController(scope, assign, response.feedback, courseId, moduleId, submitId));
 
                     // Check if there's any unsupported plugin for editing.
-                    if (!scope.userSubmission) {
+                    if (!scope.userSubmission || !scope.userSubmission.plugins) {
                         scope.userSubmission = {};
                         // Submission not created yet, we have to use assign configs to detect the plugins used.
                         scope.userSubmission.plugins = $mmaModAssignHelper.getPluginsEnabled(assign, 'assignsubmission');
@@ -515,11 +516,7 @@ angular.module('mm.addons.mod_assign')
                     });
                 });
             }).catch(function(message) {
-                if (message) {
-                    $mmUtil.showErrorModal(message);
-                } else {
-                    $mmUtil.showErrorModal('Error getting assigment data.');
-                }
+                $mmUtil.showErrorModalDefault(message, 'Error getting assigment data.');
                 return $q.reject();
             }).finally(function() {
                 scope.loaded = true;
@@ -589,7 +586,7 @@ angular.module('mm.addons.mod_assign')
                 obsManualSync && obsManualSync.off && obsManualSync.off();
                 obsSubmitGrade && obsSubmitGrade.off && obsSubmitGrade.off();
 
-                if (scope.assign) {
+                if (scope.assign && scope.isGrading) {
                     $mmSyncBlock.unblockOperation(mmaModAssignComponent, scope.assign.id);
                 }
             });
@@ -613,15 +610,14 @@ angular.module('mm.addons.mod_assign')
                     return;
                 }
 
-                if (!scope.previousAttempts || !scope.previousAttempts.length) {
+                if (!scope.previousAttempt) {
                     // Cannot access previous attempts, just go to edit.
                     scope.goToEdit();
                     return;
                 }
 
                 var modal = $mmUtil.showModalLoading(),
-                    previousAttempt = scope.previousAttempts[scope.previousAttempts.length - 1],
-                    previousSubmission = $mmaModAssign.getSubmissionObjectFromAttempt(scope.assign, previousAttempt);
+                    previousSubmission = $mmaModAssign.getSubmissionObjectFromAttempt(scope.assign, scope.previousAttempt);
 
                 $mmaModAssignHelper.getSubmissionSizeForCopy(scope.assign, previousSubmission).catch(function() {
                     // Error calculating size, return -1.
@@ -809,7 +805,7 @@ angular.module('mm.addons.mod_assign')
                 }
 
                 if (scope.feedback && scope.feedback.plugins) {
-                    return $mmaModAssignHelper.hasFeedbackDraftData(scope.assign.id, submitId, scope.feedback).catch(function() {
+                    return $mmaModAssignHelper.hasFeedbackDataChanged(scope.assign, submitId, scope.feedback).catch(function() {
                         // Error ocurred, omit error as not modified.
                         return $q.when(false);
                     });

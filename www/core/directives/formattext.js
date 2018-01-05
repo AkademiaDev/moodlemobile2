@@ -45,7 +45,7 @@ angular.module('mm.core')
  *     -shorten: If shorten is present, max-height="100" will be applied.
  *     -expand-on-click: This attribute will be discarded. The text will be expanded if shortened and fullview-on-click not true.
  */
-.directive('mmFormatText', function($interpolate, $mmText, $compile, $translate, $mmUtil) {
+.directive('mmFormatText', function($interpolate, $mmText, $compile, $translate, $mmUtil, $mmSitesManager, $mmFS) {
 
     var extractVariableRegex = new RegExp('{{([^|]+)(|.*)?}}', 'i'),
         tagsToIgnore = ['AUDIO', 'VIDEO', 'BUTTON', 'INPUT', 'SELECT', 'TEXTAREA', 'A'];
@@ -87,33 +87,48 @@ angular.module('mm.core')
      * @return {Number}          The width of the element in pixels. When 0 is returned it means the element is not visible.
      */
     function getElementWidth(element) {
-        var width = element.offsetWidth || element.width || element.clientWidth;
+        var width = $mmUtil.getElementWidth(element);
 
         if (!width) {
             // All elements inside are floating or inline. Change display mode to allow calculate the width.
             var angElement = angular.element(element),
-                parentNode = element.parentNode,
-                parentWidth = parentNode.offsetWidth || parentNode.width || parentNode.clientWidth,
+                parentWidth = $mmUtil.getElementWidth(element.parentNode, true, false, false, true),
                 previousDisplay = angElement.css('display');
 
             angElement.css('display', 'inline-block');
 
-            width = element.offsetWidth || element.width || element.clientWidth;
+            width = $mmUtil.getElementWidth(element);
 
-            if (parentWidth > 0) {
-                var cs = getComputedStyle(parentNode);
-                parentWidth -= (parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight));
-
-                // If width is incorrectly calculated use parent width instead.
-                if (parentWidth > 0 && (!width || width > parentWidth)) {
-                    width = parentWidth;
-                }
+            // If width is incorrectly calculated use parent width instead.
+            if (parentWidth > 0 && (!width || width > parentWidth)) {
+                width = parentWidth;
             }
 
             angElement.css('display', previousDisplay);
         }
 
         return parseInt(width, 10);
+    }
+
+    /**
+     * Returns the element height in pixels.
+     *
+     * @param  {Object}  elementAng Angular DOM element to get height from.
+     * @return {Number}             The height of the element in pixels. When 0 or false is returned it means the element
+     *                                  is not visible.
+     */
+    function getElementHeight(elementAng) {
+        var element = elementAng[0],
+            height;
+
+        // Disable media adapt to correctly calculate the height.
+        elementAng.removeClass('mm-enabled-media-adapt');
+
+        height = $mmUtil.getElementHeight(element);
+
+        elementAng.addClass('mm-enabled-media-adapt');
+
+        return parseInt(height, 10) || false;
     }
 
     /**
@@ -150,8 +165,9 @@ angular.module('mm.core')
                 // Render text before calculating text to get the proper height.
                 renderText(scope, element, fullText);
                 // Height cannot be calculated if the element is not shown while calculating.
-                //@todo: Work on calculate better this height.
-                var height = element[0].offsetHeight || element[0].height || element[0].clientHeight;
+                // Force shorten if it was previously shortened.
+                //@todo: Work on calculate this height better.
+                var height = element.css('max-height') ? false : getElementHeight(element);
 
                 // If cannot calculate height, shorten always.
                 if (!height || height > maxHeight) {
@@ -188,6 +204,8 @@ angular.module('mm.core')
                     });
                 }
             }
+            element.addClass('mm-enabled-media-adapt');
+
             renderText(scope, element, fullText, attrs.afterRender);
         });
     }
@@ -204,16 +222,25 @@ angular.module('mm.core')
      */
     function formatContents(scope, element, attrs, text) {
 
-        var siteId = scope.siteid,
+        var siteId = attrs.siteid,
             component = attrs.component,
-            componentId = attrs.componentId;
+            componentId = attrs.componentId,
+            site;
 
-        // Apply format text function.
-        return $mmText.formatText(text, attrs.clean, attrs.singleline).then(function(formatted) {
+        // Retrieve the site since it might be needed later.
+        return $mmSitesManager.getSite(siteId).catch(function() {
+            // Error getting the site. This probably means that there is no current site and no siteId was supplied.
+        }).then(function(siteInstance) {
+            site = siteInstance;
+
+            // Apply format text function.
+            return $mmText.formatText(text, attrs.clean, attrs.singleline);
+        }).then(function(formatted) {
 
             var el = element[0],
                 dom = angular.element('<div>').html(formatted), // Convert the content into DOM.
-                images = dom.find('img');
+                images = dom.find('img'),
+                canTreatVimeo = site && site.isVersionGreaterEqualThan(['3.3.4', '3.4']);
 
             // Walk through the content to find the links and add our directive to it.
             // Important: We need to look for links first because in 'img' we add new links without mm-link.
@@ -238,7 +265,12 @@ angular.module('mm.core')
                             container = angular.element('<span class="mm-adapted-img-container"></span>'),
                             jqImg = angular.element(img);
 
-                        container.css('float', img.style.float); // Copy the float to corretly position the search icon.
+                        container.css('float', img.style.float); // Copy the float to correctly position the search icon.
+                        if (jqImg.hasClass('atto_image_button_right')) {
+                            container.addClass('atto_image_button_right');
+                        } else if (jqImg.hasClass('atto_image_button_left')) {
+                            container.addClass('atto_image_button_left');
+                        }
                         jqImg.wrap(container);
 
                         if (imgWidth > elWidth) {
@@ -253,6 +285,10 @@ angular.module('mm.core')
 
             angular.forEach(dom.find('audio'), function(el) {
                 treatMedia(el, component, componentId, siteId);
+                if (ionic.Platform.isIOS()) {
+                    // Set data-tap-disabled="true" to make slider work in iOS.
+                    el.setAttribute('data-tap-disabled', true);
+                }
             });
             angular.forEach(dom.find('video'), function(el) {
                 treatVideoFilters(el);
@@ -260,7 +296,9 @@ angular.module('mm.core')
                 // Set data-tap-disabled="true" to make controls work in Android (see MOBILE-1452).
                 el.setAttribute('data-tap-disabled', true);
             });
-            angular.forEach(dom.find('iframe'), addMediaAdaptClass);
+            angular.forEach(dom.find('iframe'), function(el) {
+                treatIframe(el, site, canTreatVimeo);
+            });
 
             // Treat selects in iOS.
             if (ionic.Platform.isIOS()) {
@@ -319,7 +357,7 @@ angular.module('mm.core')
             return;
         }
 
-        var data = JSON.parse(el.getAttribute('data-setup') || '{}'),
+        var data = JSON.parse(el.getAttribute('data-setup') || el.getAttribute('data-setup-lazy') || '{}'),
             youtubeId = data.techOrder && data.techOrder[0] && data.techOrder[0] == 'youtube' && data.sources && data.sources[0] &&
                 data.sources[0].src && youtubeGetId(data.sources[0].src);
 
@@ -361,6 +399,35 @@ angular.module('mm.core')
         });
     }
 
+    /**
+     * Add media adapt class and treat the iframe source.
+     *
+     * @param  {Object} el             DOM element.
+     * @param  {Object} site           Site instance.
+     * @param  {Boolean} canTreatVimeo Whether Vimeo videos can be treated in the site.
+     * @return {Void}
+     */
+    function treatIframe(el, site, canTreatVimeo) {
+        addMediaAdaptClass(el);
+
+        if (el.src && canTreatVimeo) {
+            // Check if it's a Vimeo video. If it is, use the wsplayer script instead to make restricted videos work.
+            var matches = el.src.match(/https?:\/\/player\.vimeo\.com\/video\/([^\/]*)/);
+            if (matches && matches[1]) {
+                var newUrl = $mmFS.concatenatePaths(site.getURL(), '/media/player/vimeo/wsplayer.php?video=') +
+                        matches[1] + '&token=' + site.getToken();
+                if (el.width) {
+                    newUrl = newUrl + '&width=' + el.width;
+                }
+                if (el.height) {
+                    newUrl = newUrl + '&height=' + el.height;
+                }
+
+                el.src = newUrl;
+            }
+        }
+    }
+
     return {
         restrict: 'EA',
         scope: true,
@@ -376,6 +443,9 @@ angular.module('mm.core')
                     scope.$watch(variable, function() {
                         formatAndRenderContents(scope, element, attrs, content);
                     });
+                } else {
+                    // Variable not found, just format the original content.
+                    formatAndRenderContents(scope, element, attrs, content);
                 }
             } else {
                 formatAndRenderContents(scope, element, attrs, content);

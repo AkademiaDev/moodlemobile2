@@ -70,6 +70,56 @@ angular.module('mm.core.courses')
     }
 
     /**
+     * Given a list of course IDs to get course options, return the list of courseIds to use.
+     *
+     * @param  {Number[]} courseIds Course IDs.
+     * @param  {String} [siteId]    Site Id. If not defined, use current site.
+     * @return {Promise}            Promise resolved with the list of course IDs.
+     */
+    function getCourseIdsForOptions(courseIds, siteId) {
+        return $mmSitesManager.getSite(siteId).then(function(site) {
+            var siteHomeId = site.getSiteHomeId();
+
+            if (courseIds.length == 1) {
+                // Only 1 course, check if it belongs to the user courses. If so, use all user courses.
+                return self.getUserCourses(true, siteId).then(function(courses) {
+                    var courseId = courseIds[0],
+                        useAllCourses = false;
+
+                    if (courseId == siteHomeId) {
+                        // It's site home, use all courses.
+                        useAllCourses = true;
+                    } else {
+                        for (var i = 0; i < courses.length; i++) {
+                            if (courses[i].id == courseId) {
+                                useAllCourses = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (useAllCourses) {
+                        // User is enrolled, retrieve all the courses.
+                        courseIds = courses.map(function(course) {
+                            return course.id;
+                        });
+
+                        // Always add the site home ID.
+                        courseIds.push(siteHomeId);
+                    }
+
+                    return courseIds;
+                }).catch(function() {
+                    // Ignore errors.
+                    return courseIds;
+                });
+            } else {
+                return courseIds;
+            }
+        });
+    }
+
+    /**
      * Check if get cateogries WS is available.
      *
      * @module mm.core.courses
@@ -79,6 +129,64 @@ angular.module('mm.core.courses')
      */
     self.isGetCategoriesAvailable = function() {
         return $mmSite.wsAvailable('core_course_get_categories');
+    };
+
+    /**
+     * Check if My Courses is disabled in a certain site.
+     *
+     * @module mm.core.courses
+     * @ngdoc method
+     * @name $mmCourses#isMyCoursesDisabled
+     * @param  {String} [siteId] Site Id. If not defined, use current site.
+     * @return {Promise}         Promise resolved with true if disabled, rejected or resolved with false otherwise.
+     */
+    self.isMyCoursesDisabled = function(siteId) {
+        return $mmSitesManager.getSite(siteId).then(function(site) {
+            return self.isMyCoursesDisabledInSite(site);
+        });
+    };
+
+    /**
+     * Check if My Courses is disabled in a certain site.
+     *
+     * @module mm.core.courses
+     * @ngdoc method
+     * @name $mmCourses#isMyCoursesDisabledInSite
+     * @param  {Object} [site] Site. If not defined, use current site.
+     * @return {Boolean}       True if disabled, false otherwise.
+     */
+    self.isMyCoursesDisabledInSite = function(site) {
+        site = site || $mmSite;
+        return site.isFeatureDisabled('$mmSideMenuDelegate_mmCourses');
+    };
+
+    /**
+     * Check if Search Courses is disabled in a certain site.
+     *
+     * @module mm.core.courses
+     * @ngdoc method
+     * @name $mmCourses#isSearchCoursesDisabled
+     * @param  {String} [siteId] Site Id. If not defined, use current site.
+     * @return {Promise}         Promise resolved with true if disabled, rejected or resolved with false otherwise.
+     */
+    self.isSearchCoursesDisabled = function(siteId) {
+        return $mmSitesManager.getSite(siteId).then(function(site) {
+            return self.isSearchCoursesDisabledInSite(site);
+        });
+    };
+
+    /**
+     * Check if Search Courses is disabled in a certain site.
+     *
+     * @module mm.core.courses
+     * @ngdoc method
+     * @name $mmCourses#isSearchCoursesDisabledInSite
+     * @param  {Object} [site] Site. If not defined, use current site.
+     * @return {Boolean}       True if disabled, false otherwise.
+     */
+    self.isSearchCoursesDisabledInSite = function(site) {
+        site = site || $mmSite;
+        return site.isFeatureDisabled('$mmCoursesDelegate_search');
     };
 
     /**
@@ -249,7 +357,25 @@ angular.module('mm.core.courses')
                 };
 
             return site.read('core_course_get_courses_by_field', data, preSets).then(function(courses) {
-                return courses.courses || $q.reject();
+                if (courses.courses) {
+                    // Courses will be sorted using sortorder if avalaible.
+                    return courses.courses.sort(function(a, b) {
+                        if (typeof a.sortorder == "undefined" && typeof b.sortorder == "undefined") {
+                            return b.id - a.id;
+                        }
+
+                        if (typeof a.sortorder == "undefined") {
+                            return 1;
+                        }
+
+                        if (typeof b.sortorder == "undefined") {
+                            return -1;
+                        }
+
+                        return a.sortorder - b.sortorder;
+                    });
+                }
+                return $q.reject();
             });
         });
     };
@@ -311,13 +437,10 @@ angular.module('mm.core.courses')
             navOptions,
             admOptions;
 
-        return $mmSitesManager.getSite(siteId).then(function(site) {
-            // Add always the site id course.
-            courseIds.push(site.getSiteHomeId());
+        // Get the list of courseIds to use based on the param.
+        return getCourseIdsForOptions(courseIds, siteId).then(function(courseIds) {
 
-            siteId = siteId || site.getId();
-
-            // Get user navigation and administration options to speed up handlers loading.
+            // Get user navigation and administration options.
             promises.push(self.getUserNavigationOptions(courseIds, siteId).catch(function() {
                 // Couldn't get it, return empty options.
                 return {};
@@ -587,6 +710,27 @@ angular.module('mm.core.courses')
     };
 
     /**
+     * Invalidates the navigation and administration options for the given courses.
+     *
+     * @module mm.core.courses
+     * @ngdoc method
+     * @name $mmCourses#invalidateCoursesOptions
+     * @param  {Number[]} courseIds IDs of courses to get.
+     * @param  {String} [siteId]    Site ID to invalidate. If not defined, use current site.
+     * @return {Promise}            Promise resolved when the data is invalidated.
+     */
+    self.invalidateCoursesOptions = function(courseIds, siteId) {
+        return getCourseIdsForOptions(courseIds, siteId).then(function(ids) {
+            var promises = [];
+
+            promises.push(self.invalidateUserAdministrationOptionsForCourses(ids, siteId));
+            promises.push(self.invalidateUserNavigationOptionsForCourses(ids, siteId));
+
+            return $q.all(promises);
+        });
+    };
+
+    /**
      * Invalidates get courses WS call.
      *
      * @module mm.core.courses
@@ -796,7 +940,8 @@ angular.module('mm.core.courses')
                 } else if (response.warnings && response.warnings.length) {
                     var message;
                     angular.forEach(response.warnings, function(warning) {
-                        if (warning.warningcode == '2' || warning.warningcode == '4') { // Invalid password warnings.
+                        // Invalid password warnings.
+                        if (warning.warningcode == '2' || warning.warningcode == '3' || warning.warningcode == '4') {
                             message = warning.message;
                         }
                     });
