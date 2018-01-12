@@ -10,5 +10,17 @@
     "errorloadingentry": "'n Fout is begaan tydens die laai van die inskrywing.",
     "errorloadingglossary": "'n Fout is begaan tydens die laai van die woordelys.",
     "noentriesfound": "Geen inskrywings gevind.",
-    "searchquery": "Soektog"
+    "searchquery": "Soektog",
+    "bycategory": "Groepeer volgens kategorie",
+    "cannoteditentry": "Kan nie die inskrywing wysig nie",
+    "casesensitive": "Hierdie inskrywing is hooflettergevoelig",
+    "categories": "Kategorieë",
+    "concept": "Konsep",
+    "definition": "Definisie",
+    "entriestobesynced": "Inskrywings wat gesinkroniseer gaan word",
+    "entryusedynalink": "Hierdie inskrywing moet outomaties gekoppel word",
+    "errconceptalreadyexists": "Hierdie konsep bestaan reeds. Geen duplikate word in hierdie woordelys toegelaat nie.",
+    "fillfields": "Konsep en definisie is verpligte velde.",
+    "fullmatch": "Match whole words only",
+    "linking": "Koppel outomaties"
 }

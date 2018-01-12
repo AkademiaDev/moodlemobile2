@@ -26,5 +26,8 @@
     "sortoldestfirst": "Wys oudste eerste",
     "subject": "Onderwerp",
     "unread": "Ongelees",
-    "unreadpostsnumber": "{{$a}} ongeleesde boodskappe"
+    "unreadpostsnumber": "{{$a}} ongeleesde boodskappe",
+    "modeflatnewestfirst": "Wys antwoorde plat, met nuutste eerste",
+    "modeflatoldestfirst": "Wys antwoorde plat, met oudste eerste",
+    "modenested": "Wys antwoorde in geneste vorm"
 }
