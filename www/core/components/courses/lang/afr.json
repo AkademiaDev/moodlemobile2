@@ -23,5 +23,8 @@
 	"searchcourses": "Soek deur kursusse",
 	"searchcoursesadvice": "Jy kan die knoppie Soek deur kursusse gebruik om toegang te verkry as 'n gas of jouself inskryf in kursusse wat dit toelaat.",
 	"selfenrolment": "Self inskrywing",
-	"totalcoursesearchresults": "Totale kursusse: {{$a}}"
+	"totalcoursesearchresults": "Totale kursusse: {{$a}}",
+	"paymentrequired": "Hierdie kursus vereis 'n betaling vir inskrywing.",
+	"paypalaccepted": "PayPal betalings word aanvaar",
+	"sendpaymentbutton": "Stuur betaling via PayPal"
 }

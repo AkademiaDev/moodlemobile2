@@ -1,4 +1,5 @@
 {
+    "activitydisabled": "Jou organisasie het hierdie aktiwiteit in die App gedeaktiveer.",
     "activitynotyetviewableinapp": "Ons is besig om te werk aan die ondersteuning van die {{$a}} aktiwiteit.",
     "activitynotyetviewableremoteaddon": "Daar is 'n prop geïnstalleer wat nog nie ondersteun word nie.",
     "activitynotyetviewablesiteupgradeneeded": "Die spens moet opgegradeer word.",

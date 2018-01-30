@@ -71,5 +71,13 @@
     "usernamerequired": "Gebruikersnaam word vereis",
     "usernotaddederror": "Gebruiker nie bygevoeg nie - fout",
     "visitchangepassword": "Wil jy die webwerf besoek om die wagwoord te verander?",
-    "webservicesnotenabled": "Web Services is nie aangeskakel in jou webwerf nie."
+    "webservicesnotenabled": "Web Services is nie aangeskakel in jou webwerf nie.",
+    "forgotten": "Het jy jou gebruikersnaam of wagwoord vergeet?",
+    "loggedoutssodescription": "Jy moet weer bevestig word. Jy moet by die webwerf in 'n webblaaier aanmeld.",
+    "passwordforgotten": "Vergete Wagwoord",
+    "passwordforgotteninstructions2": "Om u wagwoord terug te stel, dien jou gebruikersnaam of jou e-posadres hieronder in. As ons jou in die databasis kan kry, sal 'n e-pos na jou e-pos adres gestuur word, met instruksies hoe jy weer toegang kry.",
+    "potentialidps": "Teken in met jou rekening op:",
+    "searchby": "Soek deur:",
+    "selectsite": "Kies asseblief jou webwerf:",
+    "usernameoremail": "Voer óf gebruikersnaam of e-posadres in"
 }

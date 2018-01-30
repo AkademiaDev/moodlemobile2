@@ -21,5 +21,8 @@
     "uploadafile": "Laai 'n lêer op",
     "uploading": "Besig om op te laai",
     "uploadingperc": "Besig om op te laai: {{$a}}%",
-    "video": "Video"
+    "video": "Video",
+    "filesofthesetypes": "Aanvaarde lêertipes:",
+    "invalidfiletype": "{{$a}} lêertipes kan nie aanvaar word nie.",
+    "more": "Meer"
 }
